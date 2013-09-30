@@ -38,7 +38,7 @@ void SignalHandler(int signum)
 void AsyncEvent(uv_async_t* handle, int status)
 {
   assert(handle == &async_handle);
-  heapdump::WriteSnapshot();
+  heapdump::WriteSnapshot(NULL);
 }
 
 } // namespace anonymous
@@ -63,12 +63,13 @@ void PlatformInit()
   if (sigaction(SIGUSR2, &sa, NULL)) abort();
 }
 
-void WriteSnapshot()
+bool WriteSnapshot(const char* filename)
 {
-  if (fork() != 0) return;
+  if (fork() != 0) return true;
   setsid();
-  WriteSnapshotHelper();
+  WriteSnapshotHelper(filename);
   _exit(42);
+  return true;
 }
 
 } // namespace heapdump
